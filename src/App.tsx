@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus } from "lucide-react";
+import { Plus, BookMarked } from "lucide-react";
 import {
 	Dialog,
 	DialogTrigger,
@@ -12,6 +12,8 @@ import {
 	DialogTitle,
 	DialogDescription,
 } from "@/components/ui/dialog";
+import { ConfirmDeleteDialog } from "@/components/ui/ConfirmDeleteDialog.tsx";
+import ValidImage from "@/components/ValidImage";
 
 interface Bookmark {
 	title: string;
@@ -19,32 +21,39 @@ interface Bookmark {
 	category: string;
 }
 
+interface Category {
+	name: string;
+	color: string;
+}
+
 export default function BookmarkExtension() {
 	const [search, setSearch] = useState("");
 	const [categorySearch, setCategorySearch] = useState("");
 	const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
-	const [categories, setCategories] = useState<string[]>([]);
+	const [categories, setCategories] = useState<Category[]>([]);
 	const [newBookmark, setNewBookmark] = useState<Bookmark>({
 		title: "",
 		url: "",
 		category: "",
 	});
 	const [newCategory, setNewCategory] = useState("");
+	const [newCategoryColor, setNewCategoryColor] = useState("#000000");
 
 	const [openBookmarkDialog, setOpenBookmarkDialog] = useState(false);
 	const [openCategoryDialog, setOpenCategoryDialog] = useState(false);
 
-	const [confirmDeleteDialog, setConfirmDeleteDialog] = useState(false);
-	const [deleteTarget, setDeleteTarget] = useState<{
-		type: "bookmark" | "category";
-		index: number;
-	} | null>(null);
-
-	const filteredBookmarks = bookmarks.filter((b) =>
-		b.title.toLowerCase().includes(search.toLowerCase())
+	const [bookmarkToDelete, setBookmarkToDelete] = useState<Bookmark | null>(
+		null
 	);
-	const filteredCategories = categories.filter((cat) =>
-		cat.toLowerCase().includes(categorySearch.toLowerCase())
+	const [categoryToDelete, setCategoryToDelete] = useState<string | null>(
+		null
+	);
+
+	const filteredBookmarks = bookmarks.filter((bookmark) =>
+		bookmark.title.toLowerCase().includes(search.toLowerCase())
+	);
+	const filteredCategories = categories.filter((category) =>
+		category.name.toLowerCase().includes(categorySearch.toLowerCase())
 	);
 
 	const addBookmark = () => {
@@ -56,36 +65,92 @@ export default function BookmarkExtension() {
 
 	const addCategory = () => {
 		if (!newCategory) return;
-		setCategories([...categories, newCategory]);
+		setCategories([
+			...categories,
+			{ name: newCategory, color: newCategoryColor },
+		]);
 		setNewCategory("");
+		setNewCategoryColor("#000000");
 		setOpenCategoryDialog(false);
 	};
 
-	const editBookmark = (index: number, updatedBookmark: Bookmark) => {
-		const updated = [...bookmarks];
-		updated[index] = updatedBookmark;
-		setBookmarks(updated);
-	};
+	// const editBookmark = (index: number, updatedBookmark: Bookmark) => {
+	// 	const updated = [...bookmarks];
+	// 	updated[index] = updatedBookmark;
+	// 	setBookmarks(updated);
+	// };
 
-	const deleteBookmark = (index: number) => {
-		setBookmarks(bookmarks.filter((_, i) => i !== index));
-	};
+	useEffect(() => {
+		if (bookmarks.length === 0 && categories.length === 0) {
+			const sampleCategories = [
+				{ name: "Work", color: "#3b82f6" },
+				{ name: "Personal", color: "#f43f5e" },
+				{ name: "Learning", color: "#10b981" },
+			];
+			const sampleBookmarks: Bookmark[] = [
+				{
+					title: "React Docs",
+					url: "https://reactjs.org",
+					category: "Learning",
+				},
+				{
+					title: "GitHub",
+					url: "https://github.com",
+					category: "Work",
+				},
+				{
+					title: "YouTube",
+					url: "https://youtube.com",
+					category: "Personal",
+				},
+				{
+					title: "React Docs",
+					url: "https://reactjs.org",
+					category: "Learning",
+				},
+				{
+					title: "GitHub",
+					url: "https://github.com",
+					category: "Work",
+				},
+				{
+					title: "YouTube",
+					url: "https://youtube.com",
+					category: "Personal",
+				},
+				{
+					title: "React Docs",
+					url: "https://reactjs.org",
+					category: "Learning",
+				},
+				{
+					title: "GitHub",
+					url: "https://github.com",
+					category: "Work",
+				},
+				{
+					title: "YouTube",
+					url: "https://youtube.com",
+					category: "Personal",
+				},
+			];
 
-	const deleteCategory = (index: number) => {
-		setCategories(categories.filter((_, i) => i !== index));
-	};
+			setCategories(sampleCategories);
+			setBookmarks(sampleBookmarks);
+		}
+	}, [bookmarks.length, categories.length]);
 
 	return (
-		<div className="flex flex-col items-center p-4 max-w-xl mx-auto w-[400px] h-[500px]">
+		<div className="flex flex-col items-center mx-auto p-4 w-[550px] h-[500px]">
 			<h1 className="text-2xl font-bold mb-4">My Bookmarks</h1>
 
-			<Tabs defaultValue="all">
-				<TabsList className="grid grid-cols-2 mb-4 w-[350px]">
+			<Tabs defaultValue="all" className="m-4 ">
+				<TabsList className="grid grid-cols-2 w-[450px]">
 					<TabsTrigger value="all">All</TabsTrigger>
 					<TabsTrigger value="categories">Categories</TabsTrigger>
 				</TabsList>
 
-				<TabsContent value="all">
+				<TabsContent value="all" className="w-[450px]">
 					<div className="flex justify-between items-center mb-4">
 						<Input
 							placeholder="Search bookmarks..."
@@ -142,9 +207,9 @@ export default function BookmarkExtension() {
 									className="w-full p-2 border rounded mb-2"
 								>
 									<option value="">No Category</option>
-									{categories.map((cat, i) => (
-										<option key={i} value={cat}>
-											{cat}
+									{categories.map((category, i) => (
+										<option key={i} value={category.name}>
+											{category.name}
 										</option>
 									))}
 								</select>
@@ -155,60 +220,72 @@ export default function BookmarkExtension() {
 						</Dialog>
 					</div>
 
-					<div className="grid gap-2">
-						{filteredBookmarks.map((b, i) => (
-							<Card key={i}>
-								<CardContent className="p-4 flex flex-col gap-2">
-									<a
-										href={b.url}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="font-semibold text-blue-500"
-									>
-										{b.title}
-									</a>
-									<p className="text-sm text-gray-500">
-										Category: {b.category || "None"}
-									</p>
-									<Input
-										value={b.title}
-										onChange={(e) =>
-											editBookmark(i, {
-												...b,
-												title: e.target.value,
-											})
-										}
-										placeholder="Edit title"
-									/>
-									<Input
-										value={b.url}
-										onChange={(e) =>
-											editBookmark(i, {
-												...b,
-												url: e.target.value,
-											})
-										}
-										placeholder="Edit URL"
-									/>
-									<Button
-										variant="destructive"
-										onClick={() => {
-											setDeleteTarget({
-												type: "bookmark",
-												index: i,
-											});
-											setConfirmDeleteDialog(true);
-										}}
-									>
-										Delete
-									</Button>
-								</CardContent>
-							</Card>
-						))}
+					<div className="grid grid-cols-2 gap-2">
+						{filteredBookmarks.map((bookmark, i) => {
+							const imageUrl: string = `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${bookmark.url}&size=128`;
+							return (
+								<Card key={i}>
+									<CardContent className="flex flex-col gap-2 items-center">
+										<a
+											href={bookmark.url}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="font-semibold text-blue-500 flex flex-col items-center gap-5"
+										>
+											<ValidImage
+												src={imageUrl}
+												alt="Icon image"
+												fallback={
+													<BookMarked className="w-20 h-20 text-black" />
+												}
+												width={100}
+												height={100}
+												className="rounded-lg"
+											/>
+
+											{bookmark.title}
+										</a>
+										<p className="text-sm text-gray-500">
+											Category:{" "}
+											{bookmark.category || "None"}
+										</p>
+
+										<ConfirmDeleteDialog
+											open={bookmarkToDelete === bookmark}
+											onOpenChange={(open) =>
+												setBookmarkToDelete(
+													open ? bookmark : null
+												)
+											}
+											itemLabel={bookmark.title}
+											trigger={
+												<Button
+													variant="destructive"
+													onClick={() =>
+														setBookmarkToDelete(
+															bookmark
+														)
+													}
+												>
+													Delete
+												</Button>
+											}
+											onConfirm={() =>
+												setBookmarks((prev) =>
+													prev.filter(
+														(bm) => bm !== bookmark
+													)
+												)
+											}
+										/>
+									</CardContent>
+								</Card>
+							);
+						})}
 					</div>
 				</TabsContent>
 
-				<TabsContent value="categories">
+				<TabsContent value="categories" className="w-[450px]">
 					<div className="flex justify-between items-center mb-4">
 						<Input
 							placeholder="Search categories..."
@@ -240,6 +317,43 @@ export default function BookmarkExtension() {
 									}
 									className="mb-2"
 								/>
+								<div className="grid grid-cols-5 gap-2 mb-2">
+									{[
+										"#ef4444",
+										"#f97316",
+										"#facc15",
+										"#84cc16",
+										"#22c55e",
+										"#10b981",
+										"#14b8a6",
+										"#06b6d4",
+										"#3b82f6",
+										"#6366f1",
+										"#8b5cf6",
+										"#a855f7",
+										"#d946ef",
+										"#ec4899",
+										"#f43f5e",
+										"#6b7280",
+										"#9ca3af",
+										"#fbbf24",
+										"#4ade80",
+										"#0ea5e9",
+									].map((color) => (
+										<button
+											key={color}
+											onClick={() =>
+												setNewCategoryColor(color)
+											}
+											className={`w-6 h-6 rounded-full border-2 ${
+												newCategoryColor === color
+													? "border-black"
+													: "border-transparent"
+											}`}
+											style={{ backgroundColor: color }}
+										/>
+									))}
+								</div>
 								<Button onClick={addCategory}>
 									Add Category
 								</Button>
@@ -248,86 +362,150 @@ export default function BookmarkExtension() {
 					</div>
 
 					<div className="grid gap-4">
-						{filteredCategories.map((cat, i) => (
+						{filteredCategories.map((category, i) => (
 							<div key={i}>
-								<div className="flex items-center justify-between">
-									<h1 className="text-2xl font-semibold">
-										{cat}
-									</h1>
-									<Button
-										variant="destructive"
-										onClick={() => {
-											setDeleteTarget({
-												type: "category",
-												index: i,
-											});
-											setConfirmDeleteDialog(true);
+								<div className="flex items-center justify-between pb-4">
+									<div className="flex items-center justify-center gap-2">
+										<div
+											className="w-4 h-4 rounded-full mt-1"
+											style={{
+												backgroundColor: category.color,
+											}}
+										/>
+										<h1 className="text-2xl font-semibold">
+											{category.name}
+										</h1>
+									</div>
+
+									<ConfirmDeleteDialog
+										open={
+											categoryToDelete === category.name
+										}
+										onOpenChange={(open) =>
+											setCategoryToDelete(
+												open ? category.name : null
+											)
+										}
+										itemLabel={category.name}
+										trigger={
+											<Button
+												variant="destructive"
+												onClick={() =>
+													setCategoryToDelete(
+														category.name
+													)
+												}
+											>
+												Delete
+											</Button>
+										}
+										onConfirm={() => {
+											setCategories((prev) =>
+												prev.filter(
+													(c) => c !== category
+												)
+											);
+											setBookmarks((prev) =>
+												prev.filter(
+													(bookmark) =>
+														bookmark.category !==
+														category.name
+												)
+											);
 										}}
-									>
-										<p>Delete</p>
-									</Button>
+									/>
 								</div>
 
-								<div className="grid gap-2">
+								<div className="grid grid-cols-2 gap-2">
 									{bookmarks
-										.filter((b) => b.category === cat)
-										.map((b, j) => (
-											<Card key={j}>
-												<CardContent className="p-4">
-													<a
-														href={b.url}
-														target="_blank"
-														rel="noopener noreferrer"
-														className="font-semibold text-blue-500"
-													>
-														{b.title}
-													</a>
-												</CardContent>
-											</Card>
-										))}
+										.filter(
+											(bookmark) =>
+												bookmark.category ===
+												category.name
+										)
+										.map((bookmark) => {
+											const imageUrl: string = `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${bookmark.url}&size=128`;
+
+											return (
+												<Card key={i}>
+													<CardContent className="flex flex-col gap-2 items-center">
+														<a
+															href={bookmark.url}
+															target="_blank"
+															rel="noopener noreferrer"
+															className="font-semibold text-blue-500 flex flex-col items-center gap-5"
+														>
+															<ValidImage
+																src={imageUrl}
+																alt="Icon image"
+																fallback={
+																	<BookMarked className="w-20 h-20 text-black" />
+																}
+																width={100}
+																height={100}
+																className="rounded-lg"
+															/>
+
+															{bookmark.title}
+														</a>
+														<p className="text-sm text-gray-500">
+															Category:{" "}
+															{bookmark.category ||
+																"None"}
+														</p>
+
+														<ConfirmDeleteDialog
+															open={
+																bookmarkToDelete ===
+																bookmark
+															}
+															onOpenChange={(
+																open
+															) =>
+																setBookmarkToDelete(
+																	open
+																		? bookmark
+																		: null
+																)
+															}
+															itemLabel={
+																bookmark.title
+															}
+															trigger={
+																<Button
+																	variant="destructive"
+																	onClick={() =>
+																		setBookmarkToDelete(
+																			bookmark
+																		)
+																	}
+																>
+																	Delete
+																</Button>
+															}
+															onConfirm={() =>
+																setBookmarks(
+																	(prev) =>
+																		prev.filter(
+																			(
+																				bm
+																			) =>
+																				bm !==
+																				bookmark
+																		)
+																)
+															}
+														/>
+													</CardContent>
+												</Card>
+											);
+										})}
 								</div>
 							</div>
 						))}
 					</div>
 				</TabsContent>
 			</Tabs>
-			<Dialog
-				open={confirmDeleteDialog}
-				onOpenChange={setConfirmDeleteDialog}
-			>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Are you sure?</DialogTitle>
-						<DialogDescription>
-							This action cannot be undone.
-						</DialogDescription>
-					</DialogHeader>
-					<div className="flex justify-center gap-2">
-						<Button
-							variant="outline"
-							onClick={() => setConfirmDeleteDialog(false)}
-						>
-							Cancel
-						</Button>
-						<Button
-							variant="destructive"
-							onClick={() => {
-								if (deleteTarget) {
-									if (deleteTarget.type === "bookmark") {
-										deleteBookmark(deleteTarget.index);
-									} else {
-										deleteCategory(deleteTarget.index);
-									}
-								}
-								setConfirmDeleteDialog(false);
-								setDeleteTarget(null);
-							}}
-						>
-							Delete
-						</Button>
-					</div>
-				</DialogContent>
-			</Dialog>
 		</div>
 	);
 }
