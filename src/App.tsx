@@ -165,7 +165,7 @@ export default function BookmarkExtension() {
 
 	return (
 		<div className="flex flex-col items-center mx-auto p-4 w-[550px] relative overflow-y-auto">
-			<h1 className="text-2xl font-bold mb-4">My Bookmarks</h1>
+			<h1 className="text-2xl font-bold mb-4">Site Saver</h1>
 
 			<Tabs defaultValue="all" className="m-4 ">
 				<TabsList className="grid grid-cols-2 w-[450px]">

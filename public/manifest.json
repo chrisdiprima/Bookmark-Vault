@@ -1,12 +1,18 @@
 {
 	"manifest_version": 3,
-	"name": "Bookmarks",
+	"name": "Site Saver",
 	"version": "1.0",
-	"description": "A personal bookmarks manager with categories and search",
+	"description": "A better way to bookmark! Site Saver is your smart, sleek companion for organizing and accessing your favorite sites. Easily categorize, customize, and revisit the web pages you love — all in one clean and intuitive Chrome extension.",
+	"icons": {
+		"16": "assets/icon16.png",
+		"32": "assets/icon32.png",
+		"48": "assets/icon48.png",
+		"128": "assets/icon128.png"
+	},
 	"permissions": ["storage"],
 	"action": {
 		"default_popup": "index.html",
-		"default_title": "Bookmarks"
+		"default_icon": "assets/icon16.png"
 	},
 	"background": {
 		"service_worker": "background.js"
