@@ -22,7 +22,7 @@ const ValidImage: React.FC<ValidImageProps> = ({
 		img.src = src;
 
 		img.onload = () => {
-			if (img.naturalWidth !== 128 || img.naturalHeight !== 128) {
+			if (img.naturalWidth === 16 || img.naturalHeight === 16) {
 				setIsValid(false);
 			}
 		};

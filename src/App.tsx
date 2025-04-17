@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
 	Dialog,
 	DialogTrigger,
@@ -11,29 +10,16 @@ import {
 	DialogTitle,
 	DialogDescription,
 } from "@/components/ui/dialog";
-import {
-	DropdownMenu,
-	DropdownMenuTrigger,
-	DropdownMenuContent,
-	DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { Plus, BookMarked, Ellipsis } from "lucide-react";
-import { ConfirmDeleteDialog } from "@/components/ui/ConfirmDeleteDialog.tsx";
-import ValidImage from "@/components/ValidImage";
 
-interface Bookmark {
-	id: string;
-	title: string;
-	url: string;
-	category: string;
-}
-
-interface Category {
-	name: string;
-	color: string;
-}
+import { Plus } from "lucide-react";
+import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog.tsx";
+import { cn } from "./lib/utils";
+import BookmarkCard from "./components/BookmarkCard";
+import { Bookmark, Category } from "../types.ts";
 
 export default function BookmarkExtension() {
+	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
 	const [search, setSearch] = useState("");
 	const [categorySearch, setCategorySearch] = useState("");
 	const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
@@ -164,7 +150,10 @@ export default function BookmarkExtension() {
 	}, [bookmarks.length, categories.length]);
 
 	return (
-		<div className="flex flex-col items-center mx-auto p-4 w-[550px] relative overflow-y-auto">
+		<div
+			id="main-div"
+			className="flex flex-col items-center mx-auto p-4 w-[550px] relative overflow-y-auto scrollbar-hide"
+		>
 			<h1 className="text-2xl font-bold mb-4">Site Saver</h1>
 
 			<Tabs defaultValue="all" className="m-4 ">
@@ -174,13 +163,23 @@ export default function BookmarkExtension() {
 				</TabsList>
 
 				<TabsContent value="all" className="w-[450px]">
-					<div className="flex justify-between items-center mb-4">
+					<div className="flex items-center gap-2 mb-4">
 						<Input
 							placeholder="Search bookmarks..."
 							value={search}
 							onChange={(e) => setSearch(e.target.value)}
-							className="w-full mr-2"
+							className="w-full"
 						/>
+						<Button
+							variant="outline"
+							onClick={() =>
+								setViewMode((prev) =>
+									prev === "grid" ? "list" : "grid"
+								)
+							}
+						>
+							{viewMode === "grid" ? "List View" : "Grid View"}
+						</Button>
 
 						{/* create bookmark*/}
 						<Dialog
@@ -251,114 +250,49 @@ export default function BookmarkExtension() {
 						</Dialog>
 					</div>
 
-					<div className="grid grid-cols-2 gap-2">
-						{filteredBookmarks.map((bookmark, i) => {
-							const imageUrl: string = `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${bookmark.url}&size=128`;
+					<div
+						className={cn(
+							viewMode === "grid"
+								? "grid grid-cols-2 gap-3"
+								: "flex flex-col gap-3"
+						)}
+					>
+						{filteredBookmarks.map((bookmark) => {
 							return (
-								<Card key={i}>
-									<CardContent className="flex flex-col gap-2 items-center relative">
-										<div className="absolute top-2 right-2">
-											<DropdownMenu>
-												<DropdownMenuTrigger asChild>
-													<Button
-														variant="ghost"
-														size="icon"
-														className="h-6 w-6 p-0"
-													>
-														<Ellipsis className="w-4 h-4" />
-													</Button>
-												</DropdownMenuTrigger>
-												<DropdownMenuContent align="end">
-													<DropdownMenuItem
-														onClick={() => {
-															setBookmarkToEdit(
-																bookmark
-															);
-															setNewBookmarkTitle(
-																bookmark.title
-															);
-															setNewBookmarkUrl(
-																bookmark.url
-															);
-														}}
-													>
-														Edit
-													</DropdownMenuItem>
-
-													<DropdownMenuItem
-														onClick={() =>
-															setBookmarkToDelete(
-																bookmarks[i]
-															)
-														}
-														className="text-red-500"
-													>
-														Delete
-													</DropdownMenuItem>
-												</DropdownMenuContent>
-											</DropdownMenu>
-										</div>
-
-										<a
-											href={bookmark.url}
-											target="_blank"
-											rel="noopener noreferrer"
-											className="font-semibold text-blue-500 flex flex-col items-center gap-5"
-										>
-											<ValidImage
-												src={imageUrl}
-												alt="Icon image"
-												fallback={
-													<BookMarked className="w-[100px] h-[100px] text-black" />
-												}
-												width={100}
-												height={100}
-												className="rounded-lg"
-											/>
-
-											{bookmark.title}
-										</a>
-										<p className="text-sm text-gray-500">
-											Category:{" "}
-											{bookmark.category || "None"}
-										</p>
-
-										<ConfirmDeleteDialog
-											open={
-												bookmarkToDelete?.id ===
-												bookmark.id
-											}
-											onOpenChange={(open) =>
-												setBookmarkToDelete(
-													open ? bookmark : null
-												)
-											}
-											itemLabel={bookmark.title}
-											onConfirm={() =>
-												setBookmarks((prev) =>
-													prev.filter(
-														(bm) =>
-															bm.id !==
-															bookmark.id
-													)
-												)
-											}
-										/>
-									</CardContent>
-								</Card>
+								<BookmarkCard
+									key={bookmark.id}
+									bookmark={bookmark}
+									viewMode={viewMode}
+									setBookmarkToEdit={setBookmarkToEdit}
+									setBookmarkToDelete={setBookmarkToDelete}
+									setBookmarks={setBookmarks}
+									setNewBookmarkTitle={setNewBookmarkTitle}
+									setNewBookmarkUrl={setNewBookmarkUrl}
+									bookmarkToDelete={bookmarkToDelete}
+								/>
 							);
 						})}
 					</div>
 				</TabsContent>
 
 				<TabsContent value="categories" className="w-[450px]">
-					<div className="flex justify-between items-center mb-4">
+					<div className="flex justify-between items-center mb-4 gap-2">
 						<Input
 							placeholder="Search categories..."
 							value={categorySearch}
 							onChange={(e) => setCategorySearch(e.target.value)}
-							className="w-full mr-2"
+							className="w-full"
 						/>
+						<Button
+							variant="outline"
+							onClick={() =>
+								setViewMode((prev) =>
+									prev === "grid" ? "list" : "grid"
+								)
+							}
+						>
+							{viewMode === "grid" ? "List View" : "Grid View"}
+						</Button>
 						{/* create category*/}
 						<Dialog
 							open={openCategoryDialog}
@@ -513,7 +447,14 @@ export default function BookmarkExtension() {
 									</div>
 								</div>
 
-								<div className="grid grid-cols-2 gap-2">
+								<div
+									className={cn(
+										viewMode === "grid"
+											? "grid grid-cols-2 gap-3"
+											: "flex flex-col gap-3"
+									)}
+								>
+									{" "}
 									{bookmarks
 										.filter(
 											(bookmark) =>
@@ -521,112 +462,28 @@ export default function BookmarkExtension() {
 												category.name
 										)
 										.map((bookmark) => {
-											const imageUrl: string = `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${bookmark.url}&size=128`;
-
 											return (
-												<Card key={bookmark.id}>
-													<CardContent className="flex flex-col gap-2 items-center relative">
-														<div className="absolute top-2 right-2">
-															<DropdownMenu>
-																<DropdownMenuTrigger
-																	asChild
-																>
-																	<Button
-																		variant="ghost"
-																		size="icon"
-																		className="h-6 w-6 p-0"
-																	>
-																		<Ellipsis className="w-4 h-4" />
-																	</Button>
-																</DropdownMenuTrigger>
-																<DropdownMenuContent align="end">
-																	<DropdownMenuItem
-																		onClick={() => {
-																			setBookmarkToEdit(
-																				bookmark
-																			);
-																			setNewBookmarkTitle(
-																				bookmark.title
-																			);
-																			setNewBookmarkUrl(
-																				bookmark.url
-																			);
-																		}}
-																	>
-																		Edit
-																	</DropdownMenuItem>
-
-																	<DropdownMenuItem
-																		onClick={() =>
-																			setBookmarkToDelete(
-																				bookmark
-																			)
-																		}
-																		className="text-red-500"
-																	>
-																		Delete
-																	</DropdownMenuItem>
-																</DropdownMenuContent>
-															</DropdownMenu>
-														</div>
-
-														<a
-															href={bookmark.url}
-															target="_blank"
-															rel="noopener noreferrer"
-															className="font-semibold text-blue-500 flex flex-col items-center gap-5"
-														>
-															<ValidImage
-																src={imageUrl}
-																alt="Icon image"
-																fallback={
-																	<BookMarked className="w-20 h-20 text-black" />
-																}
-																width={100}
-																height={100}
-																className="rounded-lg"
-															/>
-
-															{bookmark.title}
-														</a>
-														<p className="text-sm text-gray-500">
-															Category:{" "}
-															{bookmark.category ||
-																"None"}
-														</p>
-
-														<ConfirmDeleteDialog
-															open={
-																bookmarkToDelete?.id ===
-																bookmark.id
-															}
-															onOpenChange={(
-																open
-															) =>
-																setBookmarkToDelete(
-																	open
-																		? bookmark
-																		: null
-																)
-															}
-															itemLabel={
-																bookmark.title
-															}
-															onConfirm={() =>
-																setBookmarks(
-																	(prev) =>
-																		prev.filter(
-																			(
-																				bm
-																			) =>
-																				bm.id !==
-																				bookmark.id
-																		)
-																)
-															}
-														/>
-													</CardContent>
-												</Card>
+												<BookmarkCard
+													key={bookmark.id}
+													bookmark={bookmark}
+													viewMode={viewMode}
+													setBookmarkToEdit={
+														setBookmarkToEdit
+													}
+													setBookmarkToDelete={
+														setBookmarkToDelete
+													}
+													setBookmarks={setBookmarks}
+													setNewBookmarkTitle={
+														setNewBookmarkTitle
+													}
+													setNewBookmarkUrl={
+														setNewBookmarkUrl
+													}
+													bookmarkToDelete={
+														bookmarkToDelete
+													}
+												/>
 											);
 										})}
 								</div>

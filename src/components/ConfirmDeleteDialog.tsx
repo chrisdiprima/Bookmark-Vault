@@ -16,7 +16,7 @@ interface ConfirmDeleteDialogProps {
 	onConfirm: () => void;
 }
 
-export function ConfirmDeleteDialog({
+export default function ConfirmDeleteDialog({
 	open,
 	onOpenChange,
 	itemLabel,
