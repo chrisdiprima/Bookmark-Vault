@@ -12,7 +12,7 @@ interface ConfirmDeleteDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	itemLabel: string;
-	trigger: React.ReactNode;
+	trigger?: React.ReactNode; // ✅ Now optional
 	onConfirm: () => void;
 }
 
@@ -25,7 +25,8 @@ export function ConfirmDeleteDialog({
 }: ConfirmDeleteDialogProps) {
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogTrigger asChild>{trigger}</DialogTrigger>
+			{trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>Confirm Delete</DialogTitle>

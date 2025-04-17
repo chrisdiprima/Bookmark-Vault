@@ -3,7 +3,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, BookMarked } from "lucide-react";
 import {
 	Dialog,
 	DialogTrigger,
@@ -12,10 +11,18 @@ import {
 	DialogTitle,
 	DialogDescription,
 } from "@/components/ui/dialog";
+import {
+	DropdownMenu,
+	DropdownMenuTrigger,
+	DropdownMenuContent,
+	DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { Plus, BookMarked, Ellipsis } from "lucide-react";
 import { ConfirmDeleteDialog } from "@/components/ui/ConfirmDeleteDialog.tsx";
 import ValidImage from "@/components/ValidImage";
 
 interface Bookmark {
+	id: string;
 	title: string;
 	url: string;
 	category: string;
@@ -32,12 +39,18 @@ export default function BookmarkExtension() {
 	const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [newBookmark, setNewBookmark] = useState<Bookmark>({
+		id: crypto.randomUUID(),
 		title: "",
 		url: "",
 		category: "",
 	});
-	const [newCategory, setNewCategory] = useState("");
+	const [categoryToEdit, setCategoryToEdit] = useState<string | null>(null);
+	const [newCategoryName, setNewCategoryName] = useState("");
 	const [newCategoryColor, setNewCategoryColor] = useState("#000000");
+
+	const [bookmarkToEdit, setBookmarkToEdit] = useState<Bookmark | null>(null);
+	const [newBookmarkTitle, setNewBookmarkTitle] = useState<string>("");
+	const [newBookmarkUrl, setNewBookmarkUrl] = useState<string>("");
 
 	const [openBookmarkDialog, setOpenBookmarkDialog] = useState(false);
 	const [openCategoryDialog, setOpenCategoryDialog] = useState(false);
@@ -45,6 +58,7 @@ export default function BookmarkExtension() {
 	const [bookmarkToDelete, setBookmarkToDelete] = useState<Bookmark | null>(
 		null
 	);
+
 	const [categoryToDelete, setCategoryToDelete] = useState<string | null>(
 		null
 	);
@@ -59,17 +73,17 @@ export default function BookmarkExtension() {
 	const addBookmark = () => {
 		if (!newBookmark.title || !newBookmark.url) return;
 		setBookmarks([...bookmarks, newBookmark]);
-		setNewBookmark({ title: "", url: "", category: "" });
+		setNewBookmark({ id: "", title: "", url: "", category: "" });
 		setOpenBookmarkDialog(false);
 	};
 
 	const addCategory = () => {
-		if (!newCategory) return;
+		if (!newCategoryName) return;
 		setCategories([
 			...categories,
-			{ name: newCategory, color: newCategoryColor },
+			{ name: newCategoryName, color: newCategoryColor },
 		]);
-		setNewCategory("");
+		setNewCategoryName("");
 		setNewCategoryColor("#000000");
 		setOpenCategoryDialog(false);
 	};
@@ -89,46 +103,55 @@ export default function BookmarkExtension() {
 			];
 			const sampleBookmarks: Bookmark[] = [
 				{
+					id: crypto.randomUUID(),
 					title: "React Docs",
 					url: "https://reactjs.org",
 					category: "Learning",
 				},
 				{
+					id: crypto.randomUUID(),
 					title: "GitHub",
 					url: "https://github.com",
 					category: "Work",
 				},
 				{
+					id: crypto.randomUUID(),
 					title: "YouTube",
 					url: "https://youtube.com",
 					category: "Personal",
 				},
 				{
+					id: crypto.randomUUID(),
 					title: "React Docs",
 					url: "https://reactjs.org",
 					category: "Learning",
 				},
 				{
+					id: crypto.randomUUID(),
 					title: "GitHub",
 					url: "https://github.com",
 					category: "Work",
 				},
 				{
+					id: crypto.randomUUID(),
 					title: "YouTube",
 					url: "https://youtube.com",
 					category: "Personal",
 				},
 				{
+					id: crypto.randomUUID(),
 					title: "React Docs",
 					url: "https://reactjs.org",
 					category: "Learning",
 				},
 				{
+					id: crypto.randomUUID(),
 					title: "GitHub",
 					url: "https://github.com",
 					category: "Work",
 				},
 				{
+					id: crypto.randomUUID(),
 					title: "YouTube",
 					url: "https://youtube.com",
 					category: "Personal",
@@ -158,6 +181,8 @@ export default function BookmarkExtension() {
 							onChange={(e) => setSearch(e.target.value)}
 							className="w-full mr-2"
 						/>
+
+						{/* create bookmark*/}
 						<Dialog
 							open={openBookmarkDialog}
 							onOpenChange={setOpenBookmarkDialog}
@@ -167,7 +192,13 @@ export default function BookmarkExtension() {
 									<Plus className="w-4 h-4" />
 								</Button>
 							</DialogTrigger>
-							<DialogContent>
+							<DialogContent
+								onKeyDown={(e) => {
+									if (e.key === "Enter") {
+										addBookmark();
+									}
+								}}
+							>
 								<DialogHeader>
 									<DialogTitle>New Bookmark</DialogTitle>
 									<DialogDescription>
@@ -225,7 +256,49 @@ export default function BookmarkExtension() {
 							const imageUrl: string = `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${bookmark.url}&size=128`;
 							return (
 								<Card key={i}>
-									<CardContent className="flex flex-col gap-2 items-center">
+									<CardContent className="flex flex-col gap-2 items-center relative">
+										<div className="absolute top-2 right-2">
+											<DropdownMenu>
+												<DropdownMenuTrigger asChild>
+													<Button
+														variant="ghost"
+														size="icon"
+														className="h-6 w-6 p-0"
+													>
+														<Ellipsis className="w-4 h-4" />
+													</Button>
+												</DropdownMenuTrigger>
+												<DropdownMenuContent align="end">
+													<DropdownMenuItem
+														onClick={() => {
+															setBookmarkToEdit(
+																bookmark
+															);
+															setNewBookmarkTitle(
+																bookmark.title
+															);
+															setNewBookmarkUrl(
+																bookmark.url
+															);
+														}}
+													>
+														Edit
+													</DropdownMenuItem>
+
+													<DropdownMenuItem
+														onClick={() =>
+															setBookmarkToDelete(
+																bookmarks[i]
+															)
+														}
+														className="text-red-500"
+													>
+														Delete
+													</DropdownMenuItem>
+												</DropdownMenuContent>
+											</DropdownMenu>
+										</div>
+
 										<a
 											href={bookmark.url}
 											target="_blank"
@@ -236,7 +309,7 @@ export default function BookmarkExtension() {
 												src={imageUrl}
 												alt="Icon image"
 												fallback={
-													<BookMarked className="w-20 h-20 text-black" />
+													<BookMarked className="w-[100px] h-[100px] text-black" />
 												}
 												width={100}
 												height={100}
@@ -251,29 +324,22 @@ export default function BookmarkExtension() {
 										</p>
 
 										<ConfirmDeleteDialog
-											open={bookmarkToDelete === bookmark}
+											open={
+												bookmarkToDelete?.id ===
+												bookmark.id
+											}
 											onOpenChange={(open) =>
 												setBookmarkToDelete(
 													open ? bookmark : null
 												)
 											}
 											itemLabel={bookmark.title}
-											trigger={
-												<Button
-													variant="destructive"
-													onClick={() =>
-														setBookmarkToDelete(
-															bookmark
-														)
-													}
-												>
-													Delete
-												</Button>
-											}
 											onConfirm={() =>
 												setBookmarks((prev) =>
 													prev.filter(
-														(bm) => bm !== bookmark
+														(bm) =>
+															bm.id !==
+															bookmark.id
 													)
 												)
 											}
@@ -293,6 +359,7 @@ export default function BookmarkExtension() {
 							onChange={(e) => setCategorySearch(e.target.value)}
 							className="w-full mr-2"
 						/>
+						{/* create category*/}
 						<Dialog
 							open={openCategoryDialog}
 							onOpenChange={setOpenCategoryDialog}
@@ -302,7 +369,13 @@ export default function BookmarkExtension() {
 									<Plus className="w-4 h-4" />
 								</Button>
 							</DialogTrigger>
-							<DialogContent>
+							<DialogContent
+								onKeyDown={(e) => {
+									if (e.key === "Enter") {
+										addCategory();
+									}
+								}}
+							>
 								<DialogHeader>
 									<DialogTitle>New Category</DialogTitle>
 									<DialogDescription>
@@ -311,9 +384,9 @@ export default function BookmarkExtension() {
 								</DialogHeader>
 								<Input
 									placeholder="Category name"
-									value={newCategory}
+									value={newCategoryName}
 									onChange={(e) =>
-										setNewCategory(e.target.value)
+										setNewCategoryName(e.target.value)
 									}
 									className="mb-2"
 								/>
@@ -345,7 +418,7 @@ export default function BookmarkExtension() {
 											onClick={() =>
 												setNewCategoryColor(color)
 											}
-											className={`w-6 h-6 rounded-full border-2 ${
+											className={`w-8 h-8 rounded-full border-2 ${
 												newCategoryColor === color
 													? "border-black"
 													: "border-transparent"
@@ -367,7 +440,7 @@ export default function BookmarkExtension() {
 								<div className="flex items-center justify-between pb-4">
 									<div className="flex items-center justify-center gap-2">
 										<div
-											className="w-4 h-4 rounded-full mt-1"
+											className="w-5 h-5 rounded-full mt-1"
 											style={{
 												backgroundColor: category.color,
 											}}
@@ -376,44 +449,68 @@ export default function BookmarkExtension() {
 											{category.name}
 										</h1>
 									</div>
+									<div className="flex gap-2">
+										<Button
+											onClick={() => {
+												setCategoryToEdit(
+													category.name
+												);
+												setNewCategoryName(
+													category.name
+												);
+												setNewCategoryColor("#000000");
+											}}
+										>
+											Edit
+										</Button>
+										<ConfirmDeleteDialog
+											open={
+												categoryToDelete ===
+												category.name
+											}
+											onOpenChange={(open) =>
+												setCategoryToDelete(
+													open ? category.name : null
+												)
+											}
+											itemLabel={category.name}
+											trigger={
+												<Button
+													variant="destructive"
+													onClick={() =>
+														setCategoryToDelete(
+															category.name
+														)
+													}
+												>
+													Delete
+												</Button>
+											}
+											onConfirm={() => {
+												setCategories(
+													(prevCategories) =>
+														prevCategories.filter(
+															(c) =>
+																c !== category
+														)
+												);
 
-									<ConfirmDeleteDialog
-										open={
-											categoryToDelete === category.name
-										}
-										onOpenChange={(open) =>
-											setCategoryToDelete(
-												open ? category.name : null
-											)
-										}
-										itemLabel={category.name}
-										trigger={
-											<Button
-												variant="destructive"
-												onClick={() =>
-													setCategoryToDelete(
-														category.name
+												setBookmarks((prevBookmarks) =>
+													prevBookmarks.map(
+														(bookmark) =>
+															bookmark.category ===
+															category.name
+																? {
+																		...bookmark,
+																		category:
+																			"None",
+																  }
+																: bookmark
 													)
-												}
-											>
-												Delete
-											</Button>
-										}
-										onConfirm={() => {
-											setCategories((prev) =>
-												prev.filter(
-													(c) => c !== category
-												)
-											);
-											setBookmarks((prev) =>
-												prev.filter(
-													(bookmark) =>
-														bookmark.category !==
-														category.name
-												)
-											);
-										}}
-									/>
+												);
+											}}
+										/>
+									</div>
 								</div>
 
 								<div className="grid grid-cols-2 gap-2">
@@ -427,8 +524,52 @@ export default function BookmarkExtension() {
 											const imageUrl: string = `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${bookmark.url}&size=128`;
 
 											return (
-												<Card key={i}>
-													<CardContent className="flex flex-col gap-2 items-center">
+												<Card key={bookmark.id}>
+													<CardContent className="flex flex-col gap-2 items-center relative">
+														<div className="absolute top-2 right-2">
+															<DropdownMenu>
+																<DropdownMenuTrigger
+																	asChild
+																>
+																	<Button
+																		variant="ghost"
+																		size="icon"
+																		className="h-6 w-6 p-0"
+																	>
+																		<Ellipsis className="w-4 h-4" />
+																	</Button>
+																</DropdownMenuTrigger>
+																<DropdownMenuContent align="end">
+																	<DropdownMenuItem
+																		onClick={() => {
+																			setBookmarkToEdit(
+																				bookmark
+																			);
+																			setNewBookmarkTitle(
+																				bookmark.title
+																			);
+																			setNewBookmarkUrl(
+																				bookmark.url
+																			);
+																		}}
+																	>
+																		Edit
+																	</DropdownMenuItem>
+
+																	<DropdownMenuItem
+																		onClick={() =>
+																			setBookmarkToDelete(
+																				bookmark
+																			)
+																		}
+																		className="text-red-500"
+																	>
+																		Delete
+																	</DropdownMenuItem>
+																</DropdownMenuContent>
+															</DropdownMenu>
+														</div>
+
 														<a
 															href={bookmark.url}
 															target="_blank"
@@ -456,8 +597,8 @@ export default function BookmarkExtension() {
 
 														<ConfirmDeleteDialog
 															open={
-																bookmarkToDelete ===
-																bookmark
+																bookmarkToDelete?.id ===
+																bookmark.id
 															}
 															onOpenChange={(
 																open
@@ -471,18 +612,6 @@ export default function BookmarkExtension() {
 															itemLabel={
 																bookmark.title
 															}
-															trigger={
-																<Button
-																	variant="destructive"
-																	onClick={() =>
-																		setBookmarkToDelete(
-																			bookmark
-																		)
-																	}
-																>
-																	Delete
-																</Button>
-															}
 															onConfirm={() =>
 																setBookmarks(
 																	(prev) =>
@@ -490,8 +619,8 @@ export default function BookmarkExtension() {
 																			(
 																				bm
 																			) =>
-																				bm !==
-																				bookmark
+																				bm.id !==
+																				bookmark.id
 																		)
 																)
 															}
@@ -506,6 +635,138 @@ export default function BookmarkExtension() {
 					</div>
 				</TabsContent>
 			</Tabs>
+
+			{/* edit bookmark*/}
+			<Dialog
+				open={bookmarkToEdit !== null}
+				onOpenChange={(open) => open || setBookmarkToEdit(null)}
+			>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Edit Bookmark</DialogTitle>
+						<DialogDescription>
+							Update your bookmark details
+						</DialogDescription>
+					</DialogHeader>
+					<Input
+						placeholder="Bookmark title"
+						value={newBookmarkTitle}
+						onChange={(e) => setNewBookmarkTitle(e.target.value)}
+					/>
+					<Input
+						placeholder="Bookmark URL"
+						value={newBookmarkUrl}
+						onChange={(e) => setNewBookmarkUrl(e.target.value)}
+					/>
+					<Button
+						onClick={() => {
+							if (bookmarkToEdit) {
+								setBookmarks((prevBookmarks) =>
+									prevBookmarks.map((bookmark) =>
+										bookmark.id === bookmarkToEdit.id
+											? {
+													...bookmark,
+													title: newBookmarkTitle,
+													url: newBookmarkUrl,
+											  }
+											: bookmark
+									)
+								);
+								setBookmarkToEdit(null);
+								setOpenBookmarkDialog(false);
+							}
+						}}
+					>
+						Save Changes
+					</Button>
+				</DialogContent>
+			</Dialog>
+
+			{/* edit category*/}
+			<Dialog
+				open={categoryToEdit !== null}
+				onOpenChange={(open) => open || setCategoryToEdit(null)}
+			>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Edit Category</DialogTitle>
+						<DialogDescription>
+							Edit the category name and color
+						</DialogDescription>
+					</DialogHeader>
+					<Input
+						placeholder="Category name"
+						value={newCategoryName}
+						onChange={(e) => setNewCategoryName(e.target.value)}
+						className="mb-2"
+					/>
+					<div className="grid grid-cols-5 mb-2 m-auto gap-x-18 gap-y-6">
+						{[
+							"#ef4444",
+							"#f97316",
+							"#facc15",
+							"#84cc16",
+							"#22c55e",
+							"#10b981",
+							"#14b8a6",
+							"#06b6d4",
+							"#3b82f6",
+							"#6366f1",
+							"#8b5cf6",
+							"#a855f7",
+							"#d946ef",
+							"#ec4899",
+							"#f43f5e",
+							"#6b7280",
+							"#9ca3af",
+							"#fbbf24",
+							"#4ade80",
+							"#0ea5e9",
+						].map((color) => (
+							<button
+								key={color}
+								onClick={() => setNewCategoryColor(color)}
+								className={`w-8 h-8 rounded-full border-2 ${
+									newCategoryColor === color
+										? "border-black"
+										: "border-transparent"
+								}`}
+								style={{ backgroundColor: color }}
+							/>
+						))}
+					</div>
+					<Button
+						onClick={() => {
+							if (categoryToEdit) {
+								setCategories((prev) =>
+									prev.map((category) =>
+										category.name === categoryToEdit
+											? {
+													name: newCategoryName,
+													color: newCategoryColor,
+											  }
+											: category
+									)
+								);
+								setBookmarks((prev) =>
+									prev.map((bookmark) =>
+										bookmark.category === categoryToEdit
+											? {
+													...bookmark,
+													category: newCategoryName,
+											  }
+											: bookmark
+									)
+								);
+								setNewCategoryColor(newCategoryColor);
+								setCategoryToEdit(null);
+							}
+						}}
+					>
+						Save Changes
+					</Button>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }
