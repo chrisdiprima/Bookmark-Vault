@@ -11,11 +11,12 @@ import {
 	DialogDescription,
 } from "@/components/ui/dialog";
 
-import { Plus } from "lucide-react";
+import { Plus, Funnel, Settings, ArrowDownToLine } from "lucide-react";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog.tsx";
 import { cn } from "./lib/utils";
 import BookmarkCard from "./components/BookmarkCard";
 import { Bookmark, Category } from "../types.ts";
+// import SaveSiteButton from "./components/SaveSiteButton.tsx";
 
 export default function BookmarkExtension() {
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -29,6 +30,7 @@ export default function BookmarkExtension() {
 		title: "",
 		url: "",
 		category: "",
+		createdAt: new Date().toISOString(),
 	});
 	const [categoryToEdit, setCategoryToEdit] = useState<string | null>(null);
 	const [newCategoryName, setNewCategoryName] = useState("");
@@ -49,6 +51,17 @@ export default function BookmarkExtension() {
 		null
 	);
 
+	const [sortOptionBookmarks, setSortOptionBookMarks] = useState<
+		"az" | "za" | "newest" | "oldest"
+	>("newest");
+	const [openSortDialogBookmarks, setOpenSortDialogBookmarks] =
+		useState(false);
+	const [sortOptionCategories, setSortOptionCategories] = useState<
+		"az" | "za" | "newest" | "oldest"
+	>("newest");
+	const [openSortDialogCategories, setOpenSortDialogCategories] =
+		useState(false);
+
 	const filteredBookmarks = bookmarks.filter((bookmark) =>
 		bookmark.title.toLowerCase().includes(search.toLowerCase())
 	);
@@ -59,7 +72,13 @@ export default function BookmarkExtension() {
 	const addBookmark = () => {
 		if (!newBookmark.title || !newBookmark.url) return;
 		setBookmarks([...bookmarks, newBookmark]);
-		setNewBookmark({ id: "", title: "", url: "", category: "" });
+		setNewBookmark({
+			id: "",
+			title: "",
+			url: "",
+			category: "",
+			createdAt: "",
+		});
 		setOpenBookmarkDialog(false);
 	};
 
@@ -67,7 +86,11 @@ export default function BookmarkExtension() {
 		if (!newCategoryName) return;
 		setCategories([
 			...categories,
-			{ name: newCategoryName, color: newCategoryColor },
+			{
+				name: newCategoryName,
+				color: newCategoryColor,
+				createdAt: new Date().toISOString(),
+			},
 		]);
 		setNewCategoryName("");
 		setNewCategoryColor("#000000");
@@ -83,64 +106,215 @@ export default function BookmarkExtension() {
 	useEffect(() => {
 		if (bookmarks.length === 0 && categories.length === 0) {
 			const sampleCategories = [
-				{ name: "Work", color: "#3b82f6" },
-				{ name: "Personal", color: "#f43f5e" },
-				{ name: "Learning", color: "#10b981" },
+				{
+					name: "Learning",
+					color: "#10b981",
+					createdAt: new Date().toISOString(),
+				},
+				{
+					name: "Social",
+					color: "#3b82f6",
+					createdAt: new Date().toISOString(),
+				},
+				{
+					name: "Tools",
+					color: "#f59e0b",
+					createdAt: new Date().toISOString(),
+				},
+				{
+					name: "Entertainment",
+					color: "#ef4444",
+					createdAt: new Date().toISOString(),
+				},
+				{
+					name: "Reading",
+					color: "#8b5cf6",
+					createdAt: new Date().toISOString(),
+				},
 			];
 			const sampleBookmarks: Bookmark[] = [
 				{
 					id: crypto.randomUUID(),
-					title: "React Docs",
-					url: "https://reactjs.org",
+					title: "Desmos",
+					url: "https://www.desmos.com",
 					category: "Learning",
+					createdAt: new Date().toISOString(),
 				},
 				{
 					id: crypto.randomUUID(),
-					title: "GitHub",
-					url: "https://github.com",
-					category: "Work",
+					title: "Wolfram Alpha",
+					url: "https://www.wolframalpha.com",
+					category: "Learning",
+					createdAt: new Date().toISOString(),
 				},
+				{
+					id: crypto.randomUUID(),
+					title: "Khan Academy",
+					url: "https://www.khanacademy.org",
+					category: "Learning",
+					createdAt: new Date().toISOString(),
+				},
+				{
+					id: crypto.randomUUID(),
+					title: "Coursera",
+					url: "https://www.coursera.org",
+					category: "Learning",
+					createdAt: new Date().toISOString(),
+				},
+				{
+					id: crypto.randomUUID(),
+					title: "edX",
+					url: "https://www.edx.org",
+					category: "Learning",
+					createdAt: new Date().toISOString(),
+				},
+
+				// Social
+				{
+					id: crypto.randomUUID(),
+					title: "Instagram",
+					url: "https://www.instagram.com",
+					category: "Social",
+					createdAt: new Date().toISOString(),
+				},
+				{
+					id: crypto.randomUUID(),
+					title: "Facebook",
+					url: "https://www.facebook.com",
+					category: "Social",
+					createdAt: new Date().toISOString(),
+				},
+				{
+					id: crypto.randomUUID(),
+					title: "TikTok",
+					url: "https://www.tiktok.com",
+					category: "Social",
+					createdAt: new Date().toISOString(),
+				},
+				{
+					id: crypto.randomUUID(),
+					title: "X (Twitter)",
+					url: "https://www.twitter.com",
+					category: "Social",
+					createdAt: new Date().toISOString(),
+				},
+				{
+					id: crypto.randomUUID(),
+					title: "Reddit",
+					url: "https://www.reddit.com",
+					category: "Social",
+					createdAt: new Date().toISOString(),
+				},
+
+				// Tools
+				{
+					id: crypto.randomUUID(),
+					title: "Canva",
+					url: "https://www.canva.com",
+					category: "Tools",
+					createdAt: new Date().toISOString(),
+				},
+				{
+					id: crypto.randomUUID(),
+					title: "Figma",
+					url: "https://www.figma.com",
+					category: "Tools",
+					createdAt: new Date().toISOString(),
+				},
+				{
+					id: crypto.randomUUID(),
+					title: "Notion",
+					url: "https://www.notion.so",
+					category: "Tools",
+					createdAt: new Date().toISOString(),
+				},
+				{
+					id: crypto.randomUUID(),
+					title: "Grammarly",
+					url: "https://www.grammarly.com",
+					category: "Tools",
+					createdAt: new Date().toISOString(),
+				},
+				{
+					id: crypto.randomUUID(),
+					title: "TinyPNG",
+					url: "https://tinypng.com",
+					category: "Tools",
+					createdAt: new Date().toISOString(),
+				},
+
+				// Entertainment
 				{
 					id: crypto.randomUUID(),
 					title: "YouTube",
-					url: "https://youtube.com",
-					category: "Personal",
+					url: "https://www.youtube.com",
+					category: "Entertainment",
+					createdAt: new Date().toISOString(),
 				},
 				{
 					id: crypto.randomUUID(),
-					title: "React Docs",
-					url: "https://reactjs.org",
-					category: "Learning",
+					title: "Netflix",
+					url: "https://www.netflix.com",
+					category: "Entertainment",
+					createdAt: new Date().toISOString(),
 				},
 				{
 					id: crypto.randomUUID(),
-					title: "GitHub",
-					url: "https://github.com",
-					category: "Work",
+					title: "Spotify",
+					url: "https://www.spotify.com",
+					category: "Entertainment",
+					createdAt: new Date().toISOString(),
 				},
 				{
 					id: crypto.randomUUID(),
-					title: "YouTube",
-					url: "https://youtube.com",
-					category: "Personal",
+					title: "Twitch",
+					url: "https://www.twitch.tv",
+					category: "Entertainment",
+					createdAt: new Date().toISOString(),
 				},
 				{
 					id: crypto.randomUUID(),
-					title: "React Docs",
-					url: "https://reactjs.org",
-					category: "Learning",
+					title: "Crunchyroll",
+					url: "https://www.crunchyroll.com",
+					category: "Entertainment",
+					createdAt: new Date().toISOString(),
+				},
+
+				// Reading
+				{
+					id: crypto.randomUUID(),
+					title: "Medium",
+					url: "https://medium.com",
+					category: "Reading",
+					createdAt: new Date().toISOString(),
 				},
 				{
 					id: crypto.randomUUID(),
-					title: "GitHub",
-					url: "https://github.com",
-					category: "Work",
+					title: "Goodreads",
+					url: "https://www.goodreads.com",
+					category: "Reading",
+					createdAt: new Date().toISOString(),
 				},
 				{
 					id: crypto.randomUUID(),
-					title: "YouTube",
-					url: "https://youtube.com",
-					category: "Personal",
+					title: "Project Gutenberg",
+					url: "https://www.gutenberg.org",
+					category: "Reading",
+					createdAt: new Date().toISOString(),
+				},
+				{
+					id: crypto.randomUUID(),
+					title: "Libby App",
+					url: "https://www.overdrive.com/apps/libby",
+					category: "Reading",
+					createdAt: new Date().toISOString(),
+				},
+				{
+					id: crypto.randomUUID(),
+					title: "Archive.org",
+					url: "https://archive.org",
+					category: "Reading",
+					createdAt: new Date().toISOString(),
 				},
 			];
 
@@ -152,9 +326,40 @@ export default function BookmarkExtension() {
 	return (
 		<div
 			id="main-div"
-			className="flex flex-col items-center mx-auto p-4 w-[550px] relative overflow-y-auto scrollbar-hide"
+			className="flex flex-col items-center mx-auto p-4 w-[550px] min-h-[600px] relative overflow-y-auto scrollbar-hide"
 		>
-			<h1 className="text-2xl font-bold mb-4">Site Saver</h1>
+			<div className="w-[450px] flex justify-between items-center mb-4">
+				{/* <SaveSiteButton
+				onSave={(newBookmark) => {
+					setBookmarks((prev) => [...prev, newBookmark]);
+					chrome.storage.local.set({
+						bookmarks: [...bookmarks, newBookmark],
+					});
+				}}
+			/>{" "} */}
+				<Button variant="default" className="w-fit h-fit">
+					<ArrowDownToLine className="size-6"/>
+				</Button>
+				<Button variant="ghost">
+					{" "}
+					<h1 className="text-2xl font-bold">Site Saver</h1>
+				</Button>
+				<Dialog>
+					<DialogTrigger asChild>
+						<Button variant="ghost" size="icon">
+							<Settings className="size-8" />
+						</Button>
+					</DialogTrigger>
+					<DialogContent className="sm:max-w-md">
+						<DialogHeader>
+							<DialogTitle>Settings</DialogTitle>
+						</DialogHeader>
+						<div className="text-sm text-muted-foreground">
+							Settings go here...
+						</div>
+					</DialogContent>
+				</Dialog>
+			</div>
 
 			<Tabs defaultValue="all" className="m-4 ">
 				<TabsList className="grid grid-cols-2 w-[450px]">
@@ -163,13 +368,23 @@ export default function BookmarkExtension() {
 				</TabsList>
 
 				<TabsContent value="all" className="w-[450px]">
-					<div className="flex items-center gap-2 mb-4">
-						<Input
-							placeholder="Search bookmarks..."
-							value={search}
-							onChange={(e) => setSearch(e.target.value)}
-							className="w-full"
-						/>
+					<div className="flex items-center gap-2 mb-4 ">
+						<div className="relative w-full max-w-md">
+							<Input
+								placeholder="Search bookmarks..."
+								value={search}
+								onChange={(e) => setSearch(e.target.value)}
+								className="w-full"
+							/>
+							<Button
+								className="absolute right-0 top-1/2 transform -translate-y-1/2 text-gray-700"
+								variant="ghost"
+								onClick={() => setOpenSortDialogBookmarks(true)}
+							>
+								<Funnel />
+							</Button>
+						</div>
+
 						<Button
 							variant="outline"
 							onClick={() =>
@@ -257,32 +472,61 @@ export default function BookmarkExtension() {
 								: "flex flex-col gap-3"
 						)}
 					>
-						{filteredBookmarks.map((bookmark) => {
-							return (
-								<BookmarkCard
-									key={bookmark.id}
-									bookmark={bookmark}
-									viewMode={viewMode}
-									setBookmarkToEdit={setBookmarkToEdit}
-									setBookmarkToDelete={setBookmarkToDelete}
-									setBookmarks={setBookmarks}
-									setNewBookmarkTitle={setNewBookmarkTitle}
-									setNewBookmarkUrl={setNewBookmarkUrl}
-									bookmarkToDelete={bookmarkToDelete}
-								/>
-							);
-						})}
+						{[...filteredBookmarks]
+							.sort((a, b) => {
+								switch (sortOptionBookmarks) {
+									case "az":
+										return a.title.localeCompare(b.title);
+									case "za":
+										return b.title.localeCompare(a.title);
+
+									default:
+										return 0;
+								}
+							})
+							.map((bookmark) => {
+								return (
+									<BookmarkCard
+										key={bookmark.id}
+										bookmark={bookmark}
+										viewMode={viewMode}
+										setBookmarkToEdit={setBookmarkToEdit}
+										setBookmarkToDelete={
+											setBookmarkToDelete
+										}
+										setBookmarks={setBookmarks}
+										setNewBookmarkTitle={
+											setNewBookmarkTitle
+										}
+										setNewBookmarkUrl={setNewBookmarkUrl}
+										bookmarkToDelete={bookmarkToDelete}
+									/>
+								);
+							})}
 					</div>
 				</TabsContent>
 
 				<TabsContent value="categories" className="w-[450px]">
 					<div className="flex justify-between items-center mb-4 gap-2">
-						<Input
-							placeholder="Search categories..."
-							value={categorySearch}
-							onChange={(e) => setCategorySearch(e.target.value)}
-							className="w-full"
-						/>
+						<div className="relative w-full max-w-md">
+							<Input
+								placeholder="Search categories..."
+								value={categorySearch}
+								onChange={(e) =>
+									setCategorySearch(e.target.value)
+								}
+								className="w-full"
+							/>
+							<Button
+								className="absolute right-0 top-1/2 transform -translate-y-1/2 text-gray-700"
+								variant="ghost"
+								onClick={() =>
+									setOpenSortDialogCategories(true)
+								}
+							>
+								<Funnel />
+							</Button>
+						</div>
 						<Button
 							variant="outline"
 							onClick={() =>
@@ -369,131 +613,151 @@ export default function BookmarkExtension() {
 					</div>
 
 					<div className="grid gap-4">
-						{filteredCategories.map((category, i) => (
-							<div key={i}>
-								<div className="flex items-center justify-between pb-4">
-									<div className="flex items-center justify-center gap-2">
-										<div
-											className="w-5 h-5 rounded-full mt-1"
-											style={{
-												backgroundColor: category.color,
-											}}
-										/>
-										<h1 className="text-2xl font-semibold">
-											{category.name}
-										</h1>
-									</div>
-									<div className="flex gap-2">
-										<Button
-											onClick={() => {
-												setCategoryToEdit(
-													category.name
-												);
-												setNewCategoryName(
-													category.name
-												);
-												setNewCategoryColor("#000000");
-											}}
-										>
-											Edit
-										</Button>
-										<ConfirmDeleteDialog
-											open={
-												categoryToDelete ===
-												category.name
-											}
-											onOpenChange={(open) =>
-												setCategoryToDelete(
-													open ? category.name : null
-												)
-											}
-											itemLabel={category.name}
-											trigger={
-												<Button
-													variant="destructive"
-													onClick={() =>
-														setCategoryToDelete(
-															category.name
-														)
-													}
-												>
-													Delete
-												</Button>
-											}
-											onConfirm={() => {
-												setCategories(
-													(prevCategories) =>
-														prevCategories.filter(
-															(c) =>
-																c !== category
-														)
-												);
+						{filteredCategories
+							.sort((a, b) => {
+								switch (sortOptionCategories) {
+									case "az":
+										return a.name.localeCompare(b.name);
+									case "za":
+										return b.name.localeCompare(a.name);
 
-												setBookmarks((prevBookmarks) =>
-													prevBookmarks.map(
-														(bookmark) =>
-															bookmark.category ===
-															category.name
-																? {
-																		...bookmark,
-																		category:
-																			"None",
-																  }
-																: bookmark
+									default:
+										return 0;
+								}
+							})
+							.map((category, i) => (
+								<div key={i}>
+									<div className="flex items-center justify-between pb-4">
+										<div className="flex items-center justify-center gap-2">
+											<div
+												className="w-5 h-5 rounded-full mt-1"
+												style={{
+													backgroundColor:
+														category.color,
+												}}
+											/>
+											<h1 className="text-2xl font-semibold">
+												{category.name}
+											</h1>
+										</div>
+										<div className="flex gap-2">
+											<Button
+												onClick={() => {
+													setCategoryToEdit(
+														category.name
+													);
+													setNewCategoryName(
+														category.name
+													);
+													setNewCategoryColor(
+														"#000000"
+													);
+												}}
+											>
+												Edit
+											</Button>
+											<ConfirmDeleteDialog
+												open={
+													categoryToDelete ===
+													category.name
+												}
+												onOpenChange={(open) =>
+													setCategoryToDelete(
+														open
+															? category.name
+															: null
 													)
+												}
+												itemLabel={category.name}
+												trigger={
+													<Button
+														variant="destructive"
+														onClick={() =>
+															setCategoryToDelete(
+																category.name
+															)
+														}
+													>
+														Delete
+													</Button>
+												}
+												onConfirm={() => {
+													setCategories(
+														(prevCategories) =>
+															prevCategories.filter(
+																(c) =>
+																	c !==
+																	category
+															)
+													);
+
+													setBookmarks(
+														(prevBookmarks) =>
+															prevBookmarks.map(
+																(bookmark) =>
+																	bookmark.category ===
+																	category.name
+																		? {
+																				...bookmark,
+																				category:
+																					"None",
+																		  }
+																		: bookmark
+															)
+													);
+												}}
+											/>
+										</div>
+									</div>
+
+									<div
+										className={cn(
+											viewMode === "grid"
+												? "grid grid-cols-2 gap-3"
+												: "flex flex-col gap-3"
+										)}
+									>
+										{" "}
+										{bookmarks
+											.filter(
+												(bookmark) =>
+													bookmark.category ===
+													category.name
+											)
+											.map((bookmark) => {
+												return (
+													<BookmarkCard
+														key={bookmark.id}
+														bookmark={bookmark}
+														viewMode={viewMode}
+														setBookmarkToEdit={
+															setBookmarkToEdit
+														}
+														setBookmarkToDelete={
+															setBookmarkToDelete
+														}
+														setBookmarks={
+															setBookmarks
+														}
+														setNewBookmarkTitle={
+															setNewBookmarkTitle
+														}
+														setNewBookmarkUrl={
+															setNewBookmarkUrl
+														}
+														bookmarkToDelete={
+															bookmarkToDelete
+														}
+													/>
 												);
-											}}
-										/>
+											})}
 									</div>
 								</div>
-
-								<div
-									className={cn(
-										viewMode === "grid"
-											? "grid grid-cols-2 gap-3"
-											: "flex flex-col gap-3"
-									)}
-								>
-									{" "}
-									{bookmarks
-										.filter(
-											(bookmark) =>
-												bookmark.category ===
-												category.name
-										)
-										.map((bookmark) => {
-											return (
-												<BookmarkCard
-													key={bookmark.id}
-													bookmark={bookmark}
-													viewMode={viewMode}
-													setBookmarkToEdit={
-														setBookmarkToEdit
-													}
-													setBookmarkToDelete={
-														setBookmarkToDelete
-													}
-													setBookmarks={setBookmarks}
-													setNewBookmarkTitle={
-														setNewBookmarkTitle
-													}
-													setNewBookmarkUrl={
-														setNewBookmarkUrl
-													}
-													bookmarkToDelete={
-														bookmarkToDelete
-													}
-												/>
-											);
-										})}
-								</div>
-							</div>
-						))}
+							))}
 					</div>
 				</TabsContent>
 			</Tabs>
-
-			{/* edit bookmark*/}
+			{/* edit bookmark */}
 			<Dialog
 				open={bookmarkToEdit !== null}
 				onOpenChange={(open) => open || setBookmarkToEdit(null)}
@@ -538,8 +802,7 @@ export default function BookmarkExtension() {
 					</Button>
 				</DialogContent>
 			</Dialog>
-
-			{/* edit category*/}
+			{/* edit category */}
 			<Dialog
 				open={categoryToEdit !== null}
 				onOpenChange={(open) => open || setCategoryToEdit(null)}
@@ -601,6 +864,8 @@ export default function BookmarkExtension() {
 											? {
 													name: newCategoryName,
 													color: newCategoryColor,
+													createdAt:
+														new Date().toISOString(),
 											  }
 											: category
 									)
@@ -622,6 +887,70 @@ export default function BookmarkExtension() {
 					>
 						Save Changes
 					</Button>
+				</DialogContent>
+			</Dialog>
+			{/* set sorting option bookmarks*/}
+			<Dialog
+				open={openSortDialogBookmarks}
+				onOpenChange={setOpenSortDialogBookmarks}
+			>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Sort Bookmarks</DialogTitle>
+						<DialogDescription>
+							Choose how to sort your bookmarks
+						</DialogDescription>
+					</DialogHeader>
+					<div className="grid gap-2">
+						<Button
+							onClick={() => {
+								setSortOptionBookMarks("az");
+								setOpenSortDialogBookmarks(false);
+							}}
+						>
+							Alphabetical (A → Z)
+						</Button>
+						<Button
+							onClick={() => {
+								setSortOptionBookMarks("za");
+								setOpenSortDialogBookmarks(false);
+							}}
+						>
+							Alphabetical (Z → A)
+						</Button>
+					</div>
+				</DialogContent>
+			</Dialog>
+			{/* set sorting option categories*/}
+			<Dialog
+				open={openSortDialogCategories}
+				onOpenChange={setOpenSortDialogCategories}
+			>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Sort Categories</DialogTitle>
+						<DialogDescription>
+							Choose how to sort your categories
+						</DialogDescription>
+					</DialogHeader>
+					<div className="grid gap-2">
+						<Button
+							onClick={() => {
+								setSortOptionCategories("az");
+								setOpenSortDialogCategories(false);
+							}}
+						>
+							Alphabetical (A → Z)
+						</Button>
+						<Button
+							onClick={() => {
+								setSortOptionCategories("za");
+								setOpenSortDialogCategories(false);
+							}}
+						>
+							Alphabetical (Z → A)
+						</Button>
+					</div>
 				</DialogContent>
 			</Dialog>
 		</div>

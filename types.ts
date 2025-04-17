@@ -3,6 +3,7 @@ export type Bookmark = {
 	title: string;
 	url: string;
 	category?: string;
+	createdAt: string;
 };
 
 export type BookmarkCardProps = {
@@ -19,4 +20,5 @@ export type BookmarkCardProps = {
 export type Category = {
 	name: string;
 	color: string;
+	createdAt: string;
 };

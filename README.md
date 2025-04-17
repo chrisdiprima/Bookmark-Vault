@@ -1,19 +1,78 @@
-# 🔖 My Bookmarks Chrome Extension
+# 📌 Smart Bookmark Manager
 
-A simple and customizable Chrome extension to manage your favorite websites. Built with React, TypeScript, Tailwind CSS, and Vite.
+A beautifully simple and customizable Chrome extension for saving, organizing, and accessing your favorite sites. Perfect for students, professionals, and anyone who wants a better way to manage their web life.
 
-## ✨ Features
+---
 
--   🔍 Searchable list of all bookmarks
--   📂 Organize bookmarks into categories
--   ➕ Add, edit, and delete bookmarks
--   ⚙️ Syncs with Chrome storage
--   🎨 Modern UI built with Tailwind CSS
+## 🔥 Features
+
+-   🧠 **Smart Saving** – Auto-fill titles, prevent duplicates, and save pages with one click.
+-   🎨 **Customizable UI** – Switch between grid or list view, light/dark themes, and more.
+-   🗂️ **Category Management** – Organize bookmarks into customizable categories.
+-   ⚙️ **Settings Dialog** – A full settings panel with options for themes, saving behavior, and sync.
+
+---
+
+## 📷 Screenshots
+
+### 🔖 Bookmark Grid View
+
+![Bookmark Grid View](public/assets/screenshot1.png)
+
+### 📚 Learning Category Example
+
+![Learning Category](public/assets/screenshot3.png)
+
+### ⚙️ Dialog Boxes
+
+![Dialog Options](public/assets/screenshot4.png)
+
+---
+
+## 🚀 Installation
+
+Local Install
+
+1. Clone or download this repository.
+2. Go to `chrome://extensions/` in your Chrome browser.
+3. Enable **Developer mode** (top right).
+4. Click **Load unpacked** and select the /dist folder.
+5. Start saving your favorite pages!
+
+or
+
+Web Store
+
+1. Download and install the extension from the Chrome Web Store; Search: Site Saver.
+2. Once installed, click on the extension icon in your browser toolbar to start using Site Saver.
+3. Use the service directly in the extension popup for quick and organized bookmarks.
+
+---
 
 ## 🛠️ Tech Stack
 
 -   React + TypeScript
--   Tailwind CSS
+-   ShadCN UI (Radix + Tailwind CSS)
+-   Chrome Extension API
 -   Vite
--   Chrome Extension Manifest v3
--   Chrome Sync Storage API
+
+---
+
+## 🧪 Development
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/chrisdiprima/Bookmarks-Extension.git
+
+# 2. Navigate into the project directory
+cd Bookmarks-Extension
+
+# 3. Install dependencies
+npm install
+
+# 4. Start the development server (for popup/options page development)
+npm run dev
+
+# 5. Build the extension for Chrome
+npm run build
+```

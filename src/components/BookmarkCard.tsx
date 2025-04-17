@@ -11,7 +11,6 @@ import ValidImage from "./ValidImage"; // adjust if needed
 import ConfirmDeleteDialog from "./ConfirmDeleteDialog"; // adjust if needed
 import { BookmarkCardProps } from "types";
 
-
 export default function BookmarkCard({
 	bookmark,
 	viewMode,
@@ -70,7 +69,7 @@ export default function BookmarkCard({
 					href={bookmark.url}
 					target="_blank"
 					rel="noopener noreferrer"
-					className={`font-semibold text-blue-500 flex flex-col items-center gap-5 ${
+					className={`font-semibold text-blue-500 flex flex-col items-center gap-5 text-lg ${
 						viewMode === "grid"
 							? "flex flex-col items-center"
 							: "flex flex-row items-center justify-between"
@@ -80,16 +79,31 @@ export default function BookmarkCard({
 						src={viewMode === "grid" ? gridURL : listURL}
 						alt="Icon image"
 						fallback={
-							<BookMarked className="w-[100px] h-[100px] text-black" />
+							<BookMarked
+								className={
+									viewMode === "grid"
+										? "text-black size-20"
+										: "text-black size-8"
+								}
+							/>
 						}
-						className="rounded-lg"
+						className={
+							viewMode === "grid"
+								? "rounded-lg size-20"
+								: "rounded-lg size-8"
+						}
 					/>
 					{bookmark.title}
 				</a>
-
-				<p className="text-sm text-gray-500">
-					Category: {bookmark.category || "None"}
-				</p>
+				<a
+					href={bookmark.url}
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					<p className="text-sm text-gray-500">
+						Category: {bookmark.category || "None"}
+					</p>
+				</a>
 
 				<ConfirmDeleteDialog
 					open={bookmarkToDelete?.id === bookmark.id}
