@@ -164,7 +164,7 @@ export default function BookmarkExtension() {
 	}, [bookmarks.length, categories.length]);
 
 	return (
-		<div className="flex flex-col items-center mx-auto p-4 w-[550px] h-[500px]">
+		<div className="flex flex-col items-center mx-auto p-4 w-[550px] relative overflow-y-auto">
 			<h1 className="text-2xl font-bold mb-4">My Bookmarks</h1>
 
 			<Tabs defaultValue="all" className="m-4 ">
