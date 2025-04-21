@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import ValidImage from "./ValidImage"; // adjust if needed
 import ConfirmDeleteDialog from "./ConfirmDeleteDialog"; // adjust if needed
 import { BookmarkCardProps } from "types";
+import { toast } from "sonner";
 
 export default function BookmarkCard({
 	bookmark,
@@ -111,11 +112,14 @@ export default function BookmarkCard({
 						setBookmarkToDelete(open ? bookmark : null)
 					}
 					itemLabel={bookmark.title}
-					onConfirm={() =>
+					onConfirm={() => {
+						toast.error("Bookmark Deleted", {
+							description: `"${bookmarkToDelete?.title}" was removed.`,
+						});
 						setBookmarks((prev) =>
 							prev.filter((bm) => bm.id !== bookmark.id)
-						)
-					}
+						);
+					}}
 				/>
 			</CardContent>
 		</Card>

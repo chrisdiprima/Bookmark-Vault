@@ -10,13 +10,21 @@ import {
 	DialogTitle,
 	DialogDescription,
 } from "@/components/ui/dialog";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+} from "@/components/ui/select";
 
-import { Plus, Funnel, Settings, ArrowDownToLine } from "lucide-react";
+import { Plus, Funnel, Settings } from "lucide-react";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog.tsx";
+import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
 import { cn } from "./lib/utils";
 import BookmarkCard from "./components/BookmarkCard";
 import { Bookmark, Category } from "../types.ts";
-// import SaveSiteButton from "./components/SaveSiteButton.tsx";
+import SaveSiteButton from "./components/SaveSiteButton.tsx";
 
 export default function BookmarkExtension() {
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -39,6 +47,10 @@ export default function BookmarkExtension() {
 	const [bookmarkToEdit, setBookmarkToEdit] = useState<Bookmark | null>(null);
 	const [newBookmarkTitle, setNewBookmarkTitle] = useState<string>("");
 	const [newBookmarkUrl, setNewBookmarkUrl] = useState<string>("");
+
+	const [newBookmarkCategory, setNewBookmarkCategory] = useState(
+		bookmarkToEdit?.category || ""
+	);
 
 	const [openBookmarkDialog, setOpenBookmarkDialog] = useState(false);
 	const [openCategoryDialog, setOpenCategoryDialog] = useState(false);
@@ -70,8 +82,11 @@ export default function BookmarkExtension() {
 	);
 
 	const addBookmark = () => {
+		toast.success("Bookmark Added", {
+			description: `"${newBookmark.title}" was added to "${newBookmark.category}".`,
+		});
 		if (!newBookmark.title || !newBookmark.url) return;
-		setBookmarks([...bookmarks, newBookmark]);
+		setBookmarks([newBookmark, ...bookmarks]);
 		setNewBookmark({
 			id: "",
 			title: "",
@@ -83,245 +98,44 @@ export default function BookmarkExtension() {
 	};
 
 	const addCategory = () => {
+		toast.success("Category Created", {
+			description: `"${newCategoryName}" was created.`,
+		});
 		if (!newCategoryName) return;
 		setCategories([
-			...categories,
 			{
 				name: newCategoryName,
 				color: newCategoryColor,
 				createdAt: new Date().toISOString(),
 			},
+			...categories,
 		]);
 		setNewCategoryName("");
 		setNewCategoryColor("#000000");
 		setOpenCategoryDialog(false);
 	};
 
-	// const editBookmark = (index: number, updatedBookmark: Bookmark) => {
-	// 	const updated = [...bookmarks];
-	// 	updated[index] = updatedBookmark;
-	// 	setBookmarks(updated);
-	// };
+	useEffect(() => {
+		const stored = localStorage.getItem("bookmarks");
+		if (stored) {
+			setBookmarks(JSON.parse(stored));
+		}
+	}, []);
 
 	useEffect(() => {
-		if (bookmarks.length === 0 && categories.length === 0) {
-			const sampleCategories = [
-				{
-					name: "Learning",
-					color: "#10b981",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					name: "Social",
-					color: "#3b82f6",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					name: "Tools",
-					color: "#f59e0b",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					name: "Entertainment",
-					color: "#ef4444",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					name: "Reading",
-					color: "#8b5cf6",
-					createdAt: new Date().toISOString(),
-				},
-			];
-			const sampleBookmarks: Bookmark[] = [
-				{
-					id: crypto.randomUUID(),
-					title: "Desmos",
-					url: "https://www.desmos.com",
-					category: "Learning",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					id: crypto.randomUUID(),
-					title: "Wolfram Alpha",
-					url: "https://www.wolframalpha.com",
-					category: "Learning",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					id: crypto.randomUUID(),
-					title: "Khan Academy",
-					url: "https://www.khanacademy.org",
-					category: "Learning",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					id: crypto.randomUUID(),
-					title: "Coursera",
-					url: "https://www.coursera.org",
-					category: "Learning",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					id: crypto.randomUUID(),
-					title: "edX",
-					url: "https://www.edx.org",
-					category: "Learning",
-					createdAt: new Date().toISOString(),
-				},
+		localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
+	}, [bookmarks]);
 
-				// Social
-				{
-					id: crypto.randomUUID(),
-					title: "Instagram",
-					url: "https://www.instagram.com",
-					category: "Social",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					id: crypto.randomUUID(),
-					title: "Facebook",
-					url: "https://www.facebook.com",
-					category: "Social",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					id: crypto.randomUUID(),
-					title: "TikTok",
-					url: "https://www.tiktok.com",
-					category: "Social",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					id: crypto.randomUUID(),
-					title: "X (Twitter)",
-					url: "https://www.twitter.com",
-					category: "Social",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					id: crypto.randomUUID(),
-					title: "Reddit",
-					url: "https://www.reddit.com",
-					category: "Social",
-					createdAt: new Date().toISOString(),
-				},
-
-				// Tools
-				{
-					id: crypto.randomUUID(),
-					title: "Canva",
-					url: "https://www.canva.com",
-					category: "Tools",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					id: crypto.randomUUID(),
-					title: "Figma",
-					url: "https://www.figma.com",
-					category: "Tools",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					id: crypto.randomUUID(),
-					title: "Notion",
-					url: "https://www.notion.so",
-					category: "Tools",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					id: crypto.randomUUID(),
-					title: "Grammarly",
-					url: "https://www.grammarly.com",
-					category: "Tools",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					id: crypto.randomUUID(),
-					title: "TinyPNG",
-					url: "https://tinypng.com",
-					category: "Tools",
-					createdAt: new Date().toISOString(),
-				},
-
-				// Entertainment
-				{
-					id: crypto.randomUUID(),
-					title: "YouTube",
-					url: "https://www.youtube.com",
-					category: "Entertainment",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					id: crypto.randomUUID(),
-					title: "Netflix",
-					url: "https://www.netflix.com",
-					category: "Entertainment",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					id: crypto.randomUUID(),
-					title: "Spotify",
-					url: "https://www.spotify.com",
-					category: "Entertainment",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					id: crypto.randomUUID(),
-					title: "Twitch",
-					url: "https://www.twitch.tv",
-					category: "Entertainment",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					id: crypto.randomUUID(),
-					title: "Crunchyroll",
-					url: "https://www.crunchyroll.com",
-					category: "Entertainment",
-					createdAt: new Date().toISOString(),
-				},
-
-				// Reading
-				{
-					id: crypto.randomUUID(),
-					title: "Medium",
-					url: "https://medium.com",
-					category: "Reading",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					id: crypto.randomUUID(),
-					title: "Goodreads",
-					url: "https://www.goodreads.com",
-					category: "Reading",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					id: crypto.randomUUID(),
-					title: "Project Gutenberg",
-					url: "https://www.gutenberg.org",
-					category: "Reading",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					id: crypto.randomUUID(),
-					title: "Libby App",
-					url: "https://www.overdrive.com/apps/libby",
-					category: "Reading",
-					createdAt: new Date().toISOString(),
-				},
-				{
-					id: crypto.randomUUID(),
-					title: "Archive.org",
-					url: "https://archive.org",
-					category: "Reading",
-					createdAt: new Date().toISOString(),
-				},
-			];
-
-			setCategories(sampleCategories);
-			setBookmarks(sampleBookmarks);
+	useEffect(() => {
+		const stored = localStorage.getItem("categories");
+		if (stored) {
+			setCategories(JSON.parse(stored));
 		}
-	}, [bookmarks.length, categories.length]);
+	}, []);
+
+	useEffect(() => {
+		localStorage.setItem("categories", JSON.stringify(categories));
+	}, [categories]);
 
 	return (
 		<div
@@ -329,17 +143,14 @@ export default function BookmarkExtension() {
 			className="flex flex-col items-center mx-auto p-4 w-[550px] min-h-[600px] relative overflow-y-auto scrollbar-hide"
 		>
 			<div className="w-[450px] flex justify-between items-center mb-4">
-				{/* <SaveSiteButton
-				onSave={(newBookmark) => {
-					setBookmarks((prev) => [...prev, newBookmark]);
-					chrome.storage.local.set({
-						bookmarks: [...bookmarks, newBookmark],
-					});
-				}}
-			/>{" "} */}
-				<Button variant="default" className="w-fit h-fit">
-					<ArrowDownToLine className="size-6"/>
-				</Button>
+				<SaveSiteButton
+					onSave={(newBookmark) => {
+						setBookmarks((prev) => [...prev, newBookmark]);
+						chrome.storage.local.set({
+							bookmarks: [...bookmarks, newBookmark],
+						});
+					}}
+				/>{" "}
 				<Button variant="ghost">
 					{" "}
 					<h1 className="text-2xl font-bold">Site Saver</h1>
@@ -682,6 +493,12 @@ export default function BookmarkExtension() {
 													</Button>
 												}
 												onConfirm={() => {
+													toast.error(
+														"Category Deleted",
+														{
+															description: `"${category.name}" was removed.`,
+														}
+													);
 													setCategories(
 														(prevCategories) =>
 															prevCategories.filter(
@@ -779,9 +596,31 @@ export default function BookmarkExtension() {
 						value={newBookmarkUrl}
 						onChange={(e) => setNewBookmarkUrl(e.target.value)}
 					/>
+
+					{/* Category Selector */}
+					<Select
+						value={newBookmarkCategory}
+						onValueChange={setNewBookmarkCategory}
+					>
+						<SelectTrigger className="mt-2">Category</SelectTrigger>
+						<SelectContent>
+							{categories.map((category) => (
+								<SelectItem
+									key={category.name}
+									value={category.name}
+								>
+									{category.name}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+
 					<Button
 						onClick={() => {
 							if (bookmarkToEdit) {
+								toast("Bookmark Updated", {
+									description: `"${bookmarkToEdit.title}" was changed to "${newBookmarkTitle}" with category "${newBookmarkCategory}".`,
+								});
 								setBookmarks((prevBookmarks) =>
 									prevBookmarks.map((bookmark) =>
 										bookmark.id === bookmarkToEdit.id
@@ -789,6 +628,8 @@ export default function BookmarkExtension() {
 													...bookmark,
 													title: newBookmarkTitle,
 													url: newBookmarkUrl,
+													category:
+														newBookmarkCategory, // Updated category
 											  }
 											: bookmark
 									)
@@ -857,6 +698,9 @@ export default function BookmarkExtension() {
 					</div>
 					<Button
 						onClick={() => {
+							toast("Category Updated", {
+								description: `"${categoryToEdit}" was changed to "${newCategoryName}".`,
+							});
 							if (categoryToEdit) {
 								setCategories((prev) =>
 									prev.map((category) =>
@@ -953,6 +797,8 @@ export default function BookmarkExtension() {
 					</div>
 				</DialogContent>
 			</Dialog>
+
+			<Toaster position="bottom-right" />
 		</div>
 	);
 }
