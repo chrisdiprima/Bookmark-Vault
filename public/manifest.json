@@ -2,7 +2,7 @@
 	"manifest_version": 3,
 	"name": "Site Saver",
 	"version": "1.0",
-	"description": "A better way to bookmark! Site Saver is your smart, sleek companion for organizing and accessing your favorite sites. Easily categorize, customize, and revisit the web pages you love — all in one clean and intuitive Chrome extension.",
+	"description": "Site Saver is your smart, sleek Chrome extension to organize, categorize, and easily access your favorite sites in one place.",
 	"icons": {
 		"16": "assets/icon16.png",
 		"32": "assets/icon32.png",
