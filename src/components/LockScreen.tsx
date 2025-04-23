@@ -60,6 +60,8 @@ export default function LockScreen({ onUnlock }: { onUnlock: () => void }) {
 						<Input
 							id="password"
 							type="password"
+              name="passowrd"
+              autoComplete="current-password"
 							value={enteredPassword}
 							onChange={(e) => setEnteredPassword(e.target.value)}
 							placeholder="Your password"
