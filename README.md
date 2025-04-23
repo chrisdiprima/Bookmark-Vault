@@ -62,10 +62,10 @@ Web Store
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/chrisdiprima/Bookmarks-Extension.git
+git clone https://github.com/chrisdiprima/Bookmark-Vault.git
 
 # 2. Navigate into the project directory
-cd Bookmarks-Extension
+cd Bookmark-Vault
 
 # 3. Install dependencies
 npm install
