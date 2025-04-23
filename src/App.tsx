@@ -16,6 +16,8 @@ import {
 	SelectItem,
 	SelectTrigger,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 import { Plus, Funnel, Settings } from "lucide-react";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog.tsx";
@@ -137,6 +139,30 @@ export default function BookmarkExtension() {
 		localStorage.setItem("categories", JSON.stringify(categories));
 	}, [categories]);
 
+	const [confirmAction, setConfirmAction] = useState<
+		null | "bookmarks" | "categories"
+	>(null);
+
+	const [passwordEnabled, setPasswordEnabled] = useState(false);
+	const [password, setPassword] = useState("");
+	const [showPassword, setShowPassword] = useState(false);
+
+	useEffect(() => {
+		chrome.storage.local.get(["passwordEnabled", "password"], (result) => {
+			setPasswordEnabled(result.passwordEnabled || false);
+			setPassword(result.password || "");
+		});
+	}, []);
+
+	const handleSavePassword = () => {
+		chrome.storage.local.set({
+			passwordEnabled,
+			password,
+		});
+		toast.success(
+			"Password Saved, please do not forget it or you will lose access to your bookmarks"
+		);
+	};
 	return (
 		<div
 			id="main-div"
@@ -145,7 +171,7 @@ export default function BookmarkExtension() {
 			<div className="w-[450px] flex justify-between items-center mb-4">
 				<SaveSiteButton
 					onSave={(newBookmark) => {
-						setBookmarks((prev) => [...prev, newBookmark]);
+						setBookmarks((prev) => [newBookmark, ...prev]);
 						chrome.storage.local.set({
 							bookmarks: [...bookmarks, newBookmark],
 						});
@@ -165,11 +191,105 @@ export default function BookmarkExtension() {
 						<DialogHeader>
 							<DialogTitle>Settings</DialogTitle>
 						</DialogHeader>
-						<div className="text-sm text-muted-foreground">
-							Settings go here...
+
+						<div className="space-y-4">
+							<div className="flex items-center space-x-2">
+								<Checkbox
+									id="enable-password"
+									checked={passwordEnabled}
+									onCheckedChange={(checked) =>
+										setPasswordEnabled(Boolean(checked))
+									}
+								/>
+								<Label htmlFor="enable-password">
+									Enable Password Protection
+								</Label>
+							</div>
+
+							{passwordEnabled && (
+								<div className="space-y-2">
+									<Input
+										type={
+											showPassword ? "text" : "password"
+										}
+										placeholder="Set password"
+										value={password}
+										onChange={(e) =>
+											setPassword(e.target.value)
+										}
+									/>
+									<div className="flex items-center space-x-2">
+										<Checkbox
+											id="show-password"
+											checked={showPassword}
+											onCheckedChange={(checked) =>
+												setShowPassword(
+													Boolean(checked)
+												)
+											}
+										/>
+										<Label htmlFor="show-password">
+											Show Password
+										</Label>
+									</div>
+								</div>
+							)}
+
+							<Button onClick={handleSavePassword}>
+								Save Security Settings
+							</Button>
+						</div>
+
+						<div className="flex flex-col gap-4 mt-4">
+							<Button
+								variant="destructive"
+								onClick={() => setConfirmAction("bookmarks")}
+							>
+								Delete All Bookmarks
+							</Button>
+							<Button
+								variant="destructive"
+								onClick={() => setConfirmAction("categories")}
+							>
+								Delete All Categories
+							</Button>
 						</div>
 					</DialogContent>
 				</Dialog>
+				{/* Confirm Delete Dialog for Bookmarks */}
+				<ConfirmDeleteDialog
+					open={confirmAction === "bookmarks"}
+					onOpenChange={(open) =>
+						setConfirmAction(open ? "bookmarks" : null)
+					}
+					itemLabel="all bookmarks"
+					trigger={null}
+					onConfirm={() => {
+						setBookmarks([]);
+						toast.error("All bookmarks deleted.");
+						setConfirmAction(null);
+					}}
+				/>
+				{/* Confirm Delete Dialog for Categories */}
+				<ConfirmDeleteDialog
+					open={confirmAction === "categories"}
+					onOpenChange={(open) =>
+						setConfirmAction(open ? "categories" : null)
+					}
+					itemLabel="all categories"
+					trigger={null}
+					onConfirm={() => {
+						setCategories([]);
+						setBookmarks((prevBookmarks) =>
+							prevBookmarks.map((bookmark) => ({
+								...bookmark,
+								category: "None",
+							}))
+						);
+						toast.error("All categories deleted.");
+						setConfirmAction(null);
+					}}
+				/>
 			</div>
 
 			<Tabs defaultValue="all" className="m-4 ">
