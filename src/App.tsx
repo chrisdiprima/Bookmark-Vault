@@ -163,6 +163,7 @@ export default function BookmarkExtension() {
 			"Password Saved, please do not forget it or you will lose access to your bookmarks"
 		);
 	};
+
 	return (
 		<div
 			id="main-div"
@@ -732,6 +733,7 @@ export default function BookmarkExtension() {
 									{category.name}
 								</SelectItem>
 							))}
+							<SelectItem value="None">None</SelectItem>
 						</SelectContent>
 					</Select>
 

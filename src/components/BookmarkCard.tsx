@@ -22,8 +22,15 @@ export default function BookmarkCard({
 	setNewBookmarkUrl,
 	bookmarkToDelete,
 }: BookmarkCardProps) {
-	const gridURL = `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${bookmark.url}&size=128`;
-	const listURL = `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${bookmark.url}&size=32`;
+	const cleanURL = (url: string) => {
+		const regex =
+			/^(https?:\/\/(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})(?:\/.*)?$/;
+		const match = url.match(regex);
+		return match ? match[1] : url; // Return the base URL with subdomain if matched, else return original
+	};
+	const cleanedURL = cleanURL(bookmark.url);
+	const gridURL = `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${cleanedURL}&size=128`;
+	const listURL = `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${cleanedURL}&size=32`;
 
 	return (
 		<Card key={bookmark.id} className="w-full">
@@ -70,7 +77,7 @@ export default function BookmarkCard({
 					href={bookmark.url}
 					target="_blank"
 					rel="noopener noreferrer"
-					className={`font-semibold text-blue-500 flex flex-col items-center gap-5 text-lg ${
+					className={`font-semibold text-blue-500 flex flex-col items-center gap-5 text-lg  ${
 						viewMode === "grid"
 							? "flex flex-col items-center"
 							: "flex flex-row items-center justify-between"
@@ -94,7 +101,7 @@ export default function BookmarkCard({
 								: "rounded-lg size-8"
 						}
 					/>
-					{bookmark.title}
+					<p className="line-clamp-2 text-center">{bookmark.title}</p>
 				</a>
 				<a
 					href={bookmark.url}
