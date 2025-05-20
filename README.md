@@ -7,23 +7,16 @@ A beautifully simple and customizable Chrome extension for saving, organizing, a
 ## 🔥 Features
 
 -   🧠 **Smart Saving** – Auto-fill titles, prevent duplicates, and save pages with one click.
--   🎨 **Customizable UI** – Switch between grid or list view, light/dark themes, and more.
+-   🎨 **Customizable UI** – Switch between grid or list view, and more.
 -   🗂️ **Category Management** – Organize bookmarks into customizable categories.
--   ⚙️ **Settings Dialog** – A full settings panel with options for themes, saving behavior, and sync.
 
 ---
 
 ## 📷 Screenshots
 
-### 🔖 Bookmark Grid View
-
 ![Bookmark Grid View](public/assets/screenshot1.png)
 
-### 📚 Learning Category Example
-
 ![Learning Category](public/assets/screenshot3.png)
-
-### ⚙️ Dialog Boxes
 
 ![Dialog Options](public/assets/screenshot4.png)
 
